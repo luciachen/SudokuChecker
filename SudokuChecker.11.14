@@ -1,0 +1,142 @@
+package edu.yale.cpsc112_lesson2;
+
+import android.graphics.Point;
+
+
+public class SudokuChecker
+{
+
+   public static void main(String[] args)
+   {
+      System.out.println("Hello world.");
+   }
+   
+   //row is an integer array of size 9, containing the row of numbers that the user just modified
+   //pos is the index within the row that the user modified
+   //the method should return a boolean array of size 9, with a true in the ith position if the corresponding element in row is equal to row[pos]
+   //but the element at the pos index in the boolean array should be false (because we already know it is equal to row[pos])
+   //for example, if row is 9,3,8,0,2,6,2,1,7 and pos is 4, checkRow should return the following boolean array false,false,false,false,false,false,true,false,false
+   
+   //input row is an array of 9 integers
+   //input position is the index of the box the user changed (zero-based index)
+   //return an array of boolean values in which every element of the array is false except for any value that is the same as the value the user just changed
+   public static boolean[] checkRow(int[] row, int pos)
+   {
+	 //create a variable called returnVals of type Boolean array
+	 //size of array = number of integers in the row  
+      boolean[] returnVals = new boolean[row.length];
+
+	 //iterate through every index of the array --> i goes from 0 to 8 --> updated by i++
+      for (int i = 0; i < row.length; i++) {
+
+    	  //if any element of the row (iterate through all indices) equals the pos element of the row --> change returnVals[i] to true
+    	  //if we just had row[i] == row[pos] --> both row[i] and row[pos] element return true
+    	  		//but we don't want to return true for row[pos], the element we just changed
+    	  		//need to add a second condition i != pos --> only row[i] element, not row[pos] element, returns true 
+    	  if (row[i] == row[pos] && i !=pos) 
+    	  {
+    		  //Java auto-initializes every element of the array to be the zero-equivalent value of that type
+    		  //for Boolean values, the zero-equivalent value = false
+            returnVals[i] = true;
+    	  }
+      }
+      return returnVals;
+   }
+   
+   //for checkColumn method - same functionality, just change variable name "row" to "column"
+   public static boolean[] checkColumn(int[] column, int pos)
+   {
+      boolean[] returnVals = new boolean[column.length];
+      for (int i = 0; i < column.length; i++) {
+         if (column[i] == column[pos] && i !=pos) {
+            returnVals[i] = true;
+         }
+      }
+      return returnVals;
+   }
+
+   
+   //this method takes a multidimentional array called sudoku that stores the entire 81 values of sudoku (an array of arrays)
+   		//int [][] sudoku = 9 rows of 9 integers each
+   //it also takes a zero-based "rowIndex" and a "columnIndex" (row and column that was just filled in by the user)
+   //the goal is to return a list of boxes in the same row or in the same column that contain the same value as what the user just modified
+   
+   public static int[][] checkProblems(int[][] sudoku, int rowIndex, int columnIndex)
+   {
+      int count = 0;
+
+	  //send checkRow 2 parameters: array of the row we want to check (rowIndex) & position of the element the user just changed (columnIndex)
+	   		//the rowIndex element of the sudoku array is itself an array: returns the entire row that contains the box the user changed   	 
+   
+      boolean[] vals = checkRow(sudoku[rowIndex], columnIndex);
+      
+      //every time vals[i] is true, increment variable count      
+      for (int i = 0; i < vals.length; i++)
+      {
+         if (vals[i]) 
+         {
+            count++;
+         }
+      }
+      //at this point, count is equal to number of problems in the same row as the element the user changed
+
+      
+      //specifying a single dimension in a multidimensional array: sudoku[2]
+      		//only specifies the row dimension
+      		//impossible to specify an entire column at once
+      //need to create a new integer array called column with 9 elements
+      //extract out the columnIndex element of the i'th row
+      		//row index loops from 0 to 8, column index is always the same number
+
+      int[] column = new int[9];
+      for (int i = 0; i < vals.length; i++) 
+      {
+         column[i] = sudoku[i][columnIndex];
+      }
+
+	  //call checkColumn on the column specified by columnIndex
+      boolean[] vals2 = checkColumn(column, rowIndex);
+      
+      for (int i = 0; i < 9; i++)
+      {
+    	  if (vals2[i])
+    	  {
+    		  count++;
+    	  }
+      }
+      //at this point, count is equal to number of problems in the same row or the same column
+
+      
+      //Point is a complex type that stores two integers (x, y)
+      //we can create arrays of primitive types (integers, booleans) and complex types (Strings, Points)
+      Point p = new Point (4,2); //creates a new point and initializes it to Cartesian coordinate (4,2)
+      
+
+      //return a multidimensional integer array
+			//number of rows = count (number of problems)
+			//number of columns = 2 (one for row index, one for column index)
+      int[][] returnVals = new int[count][2];
+      //change returnVals to a one-dimensional array of points
+      
+      //currIndex = current row inside the returnVals array
+      int currIndex = 0;
+      for (int i = 0; i < vals.length; i++)
+      {
+    	  if (vals[i])
+    	  {
+    		  //currIndex = 0 at the point we find the first problem (first row of the returnVals array)
+    		  returnVals[currIndex][0] = rowIndex;
+    		  returnVals[currIndex][1] = i; //vals array is a row, i is each position in the row (column position)
+    		  currIndex++; //move on to the next row of the returnVals array
+    	  }
+    	  if (vals2[i])
+    	  {
+    		  returnVals[currIndex][0] = i; //vals2 array is a column, i is each position in the column (row position)
+    		  returnsVals[currIndex][1] = columnIndex;
+    		  currIndex++;
+    	  }
+      }
+      
+      return returnVals;
+   }    
+}
